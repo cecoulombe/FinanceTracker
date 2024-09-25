@@ -13,10 +13,8 @@ The most up-to-date version of the Finance Tracker website is available [here](h
 
 ## To-Do List for Website
 
-- [x] Convert implementation from Javascript to React.
-  - [x] Implement MVC via React.
-- [x] Add input validation to ensure input is numerical.
-- [x] Protect user input so that it persists when the page is reloaded.
+- [ ] Change method of converting currency. Currently, the app will change from currency A to currency B, then from currency B to currency C; however, this leads to an inaccurate representation of actual net worth
+  - Intended solution: choose one "home currency" in which all values will be stored in, and only convert from that currency to the new currency, preventing loss or gain of funds.
 - [ ] Create an API that calls out to the third party conversion rates site so that it is not done directly through the web application.
 - [ ] Learn AWS so that it can be used to host the site.
 
