@@ -1,6 +1,6 @@
 const getExchangeRates = async (currency) => {
+    // eslint-disable-next-line no-unused-vars
     const apiKey = "26716265cb570afd57f0af33";
-    // const apiURL = `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${currency}`;
     const apiURL = `https://v6.exchangerate-api.com/v6/26716265cb570afd57f0af33/latest/${currency}`;
 
     try {
