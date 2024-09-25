@@ -23,5 +23,5 @@ The most up-to-date version of the Finance Tracker website is available [here](h
 
 - **v1.0**: Initial launch of the website with basic features written in Javascript and HTML.
   - [Link to the Webpage (OLD)](https://cecoulombe.github.io/FinanceTracker/tracker_HTML)
-- **v1.1**: Website redesigned and implemented using React. New version control through a different repository as it is hosted via GitHub Pages rather than GitHub.io.
+- **v1.1**: Website redesigned and implemented using React. New version control through a different repository and changed to host with GitHub Pages.
   - [Link to the Webpage](https://cecoulombe.github.io/FinanceTracker/)
