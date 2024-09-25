@@ -9,7 +9,7 @@ This README file is specifically for the Finance Tracker website hosted through 
 
 ## Access Instructions
 The most up-to-date version of the Finance Tracker website is available [here](https://cecoulombe.github.io/FinanceTracker/)
-- https://cecoulombe.github.io/FinanceTracker/"
+- https://cecoulombe.github.io/FinanceTracker/
 
 ## To-Do List for Website
 
