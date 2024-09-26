@@ -45,17 +45,32 @@ function App() {
   useEffect(() => {
     const fetchExchangeRates = async () => {
       console.log("!!!!! The currency being sent to the API is: ", homeCurrency);
-        // gives all of the exchange rates for everything compared to the home currency
       const rates = await getExchangeRates(homeCurrency);
-      if(rates)
-      {
+      if (rates) {
         setExchangeRates(rates);
+        const initialRate = rates[selectedCurrency]; // Set initial rate based on selected currency
+        if (initialRate) {
+          updateRate(initialRate);
+          // Update assets and liabilities based on the initial rate
+          setAssets(prevAssets => 
+            prevAssets.map(asset => ({
+              ...asset,
+              convertedAmount: parseFloat((asset.amount * initialRate).toFixed(2)), // Convert amounts
+            }))
+          );
+          setLiabilities(prevLiabilities => 
+            prevLiabilities.map(liability => ({
+              ...liability,
+              convertedAmount: parseFloat((liability.amount * initialRate).toFixed(2)), // Convert amounts
+            }))
+          );
+        }
       }
     };
-
+  
     fetchExchangeRates();
-  }, [selectedCurrency]); // dependency array - this useEffect will run whenever any of the values in the array are changed
-
+  }, [selectedCurrency]); // Fetch new rates when the selected currency changes
+  
   // set the exchange rate
   const updateRate = newRate => {
     setRate(newRate);
@@ -69,32 +84,59 @@ function App() {
   }; 
 
   //*** CHANGES HERE FOR CURRENCY FIXES */
+  // const handleCurrencyChange = (e) => {
+  //   const targetCurrency = e.target.value;
+  //   setSelectedCurrency(targetCurrency);
+
+  //   if (exchangeRates[targetCurrency]) {
+  //       const newRate = exchangeRates[targetCurrency];
+  //       console.log("Current target exachange rate: ", newRate)
+  //       updateRate(newRate);
+
+  //       // Update assets
+  //       const convertAssets = updateAmounts(assets.map(asset => asset.amount), newRate);
+  //       setAssets(assets => assets.map((asset, index) => ({
+  //           ...asset,
+  //           convertedAmount: parseFloat(convertAssets[index]), // Ensure it's a number
+  //       })));
+
+  //       // Update liabilities
+  //       const updatedLiabilities = updateAmounts(liabilities.map(liability => liability.amount), newRate);
+  //       setLiabilities(prevLiabilities => prevLiabilities.map((liability, index) => ({
+  //           ...liability,
+  //           convertedAmount: parseFloat(updatedLiabilities[index]), // Ensure it's a number
+  //       })));
+  //   } else {
+  //       console.log("Exchange rates not available for target currency");
+  //   }
+  // };
   const handleCurrencyChange = (e) => {
     const targetCurrency = e.target.value;
     setSelectedCurrency(targetCurrency);
-
+  
     if (exchangeRates[targetCurrency]) {
-        const newRate = exchangeRates[targetCurrency];
-        console.log("Current target exachange rate: ", newRate)
-        updateRate(newRate);
-
-        // Update assets
-        const convertAssets = updateAmounts(assets.map(asset => asset.amount), newRate);
-        setAssets(assets => assets.map((asset, index) => ({
-            ...asset,
-            convertedAmount: parseFloat(convertAssets[index]), // Ensure it's a number
-        })));
-
-        // Update liabilities
-        const updatedLiabilities = updateAmounts(liabilities.map(liability => liability.amount), newRate);
-        setLiabilities(prevLiabilities => prevLiabilities.map((liability, index) => ({
-            ...liability,
-            convertedAmount: parseFloat(updatedLiabilities[index]), // Ensure it's a number
-        })));
+      const newRate = exchangeRates[targetCurrency];
+      console.log("Current target exchange rate: ", newRate);
+      updateRate(newRate);
+  
+      // Update assets
+      const convertAssets = updateAmounts(assets.map(asset => asset.amount), newRate);
+      setAssets(assets => assets.map((asset, index) => ({
+        ...asset,
+        convertedAmount: parseFloat(convertAssets[index]), // Ensure it's a number
+      })));
+  
+      // Update liabilities
+      const updatedLiabilities = updateAmounts(liabilities.map(liability => liability.amount), newRate);
+      setLiabilities(prevLiabilities => prevLiabilities.map((liability, index) => ({
+        ...liability,
+        convertedAmount: parseFloat(updatedLiabilities[index]), // Ensure it's a number
+      })));
     } else {
-        console.log("Exchange rates not available for target currency");
+      console.log("Exchange rates not available for target currency");
     }
   };
+  
 
   // assets management
   const addAsset = () => {

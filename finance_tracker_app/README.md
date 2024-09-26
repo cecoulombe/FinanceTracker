@@ -1,31 +1,27 @@
-## Publish a new version
-To build and publish a new version of the webpage, go into the terminal and navigate to the source folder. From there, enter the command lines "npm run build" followed by "npm run deploy".
+# Website Documentation
 
-# Getting Started with Create React App
+This README file is specifically for the Finance Tracker website hosted through GitHub Pages.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Contents
+- [Access Instructions](#Access-Instructions)
+- [TODO List](#To-Do-List-for-Website)
+- [Version History](#Version-History)
 
-## Available Scripts
+## Access Instructions
+The most up-to-date version of the Finance Tracker website is available [here](https://cecoulombe.github.io/FinanceTracker/)
+- https://cecoulombe.github.io/FinanceTracker/
 
-In the project directory, you can run:
+## To-Do List for Website
 
-### `npm start`
+- [ ] Change method of converting currency. Currently, the app will change from currency A to currency B, then from currency B to currency C; however, this leads to an inaccurate representation of actual net worth
+  - Intended solution: choose one "home currency" in which all values will be stored in, and only convert from that currency to the new currency, preventing loss or gain of funds.
+- [ ] Increase the number of options for currency and add formatting that changes with the currency.
+- [ ] Create an API that calls out to the third party conversion rates site so that it is not done directly through the web application.
+- [ ] Learn AWS so that it can be used to host the site.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Version History
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **v1.0**: Initial launch of the website with basic features written in Javascript and HTML.
+  - [Link to the Webpage (OLD)](https://cecoulombe.github.io/FinanceTracker/tracker_HTML)
+- **v1.1**: Website redesigned and implemented using React. New version control through a different repository and changed to host with GitHub Pages.
+  - [Link to the Webpage](https://cecoulombe.github.io/FinanceTracker/)
