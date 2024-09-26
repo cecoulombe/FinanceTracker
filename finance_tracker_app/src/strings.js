@@ -8,6 +8,9 @@ const strings = {
     assetTitle: "Asset Names",
     liabilityTitle: "Liability Names", 
     amountTitle: "Value",
+    convertedAmountTitle: "Converted Value",
+    assetPlaceHolder: "Asset name",
+    liabilityPlaceHolder: "Liability name",
     addAssetButton: "Add asset",
     addLiabilityButton: "Add liability",
     assetsDescription: "Assets may include: saved money, investments, real estate, &c.",
@@ -15,6 +18,7 @@ const strings = {
     assetsSum: "Sum of Assets: ",
     liabilitiesSum: "Sum of Liabilities: " ,
     netWorth: "Net worth: ",
+    convertedNetWorth: "Net worth in target currency: ",
 }
 
 export default strings;

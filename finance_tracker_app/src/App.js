@@ -5,6 +5,8 @@ import strings from './strings.js';
 
 function App() {
   // currency state
+  const homeCurrency = 'CAD';
+  
   const [selectedCurrency, setSelectedCurrency] = useState(() => {
     const storedCurrency = localStorage.getItem('chosenCurrency') || ('CAD');
     console.log('Loaded currency choice from localStorage: ', storedCurrency);
@@ -13,15 +15,16 @@ function App() {
 
   // exchange rates
   const [exchangeRates, setExchangeRates] = useState({});
+  const [rate, setRate] = useState({});
 
   // states specifically for assets and liabilities
   const [assets, setAssets] = useState(() => {
-    const storedAssets = JSON.parse(localStorage.getItem('assets')) || [{label: '', amount: 0}];
+    const storedAssets = JSON.parse(localStorage.getItem('assets')) || [{label: '', amount: 0, convertedAmount: 0}];
     console.log('Loaded assets from localStorage: ', storedAssets);
     return storedAssets;
   })
   const [liabilities, setLiabilities] = useState(() => {
-    const storedLiabilities = JSON.parse(localStorage.getItem('liabilities')) || [{label: '', amount: 0}];
+    const storedLiabilities = JSON.parse(localStorage.getItem('liabilities')) || [{label: '', amount: 0, convertedAmount: 0}];
     console.log('Loaded liabilities from localStorage: ', storedLiabilities);
     return storedLiabilities;
   })
@@ -41,8 +44,9 @@ function App() {
   // load exchange rates
   useEffect(() => {
     const fetchExchangeRates = async () => {
-      console.log("!!!!! The currency being sent to the API is: ", selectedCurrency);
-      const rates = await getExchangeRates(selectedCurrency);
+      console.log("!!!!! The currency being sent to the API is: ", homeCurrency);
+        // gives all of the exchange rates for everything compared to the home currency
+      const rates = await getExchangeRates(homeCurrency);
       if(rates)
       {
         setExchangeRates(rates);
@@ -52,32 +56,40 @@ function App() {
     fetchExchangeRates();
   }, [selectedCurrency]); // dependency array - this useEffect will run whenever any of the values in the array are changed
 
+  // set the exchange rate
+  const updateRate = newRate => {
+    setRate(newRate);
+  }
+
   const updateAmounts = (amounts, rate) => {
     return amounts.map((amount) => {
         const parsedAmount = parseFloat(amount); // Parse as float
         return (parsedAmount * rate).toFixed(2); // Calculate and format to 2 decimal places
     });
-  };
+  }; 
 
+  //*** CHANGES HERE FOR CURRENCY FIXES */
   const handleCurrencyChange = (e) => {
     const targetCurrency = e.target.value;
     setSelectedCurrency(targetCurrency);
 
     if (exchangeRates[targetCurrency]) {
-        const rate = exchangeRates[targetCurrency];
+        const newRate = exchangeRates[targetCurrency];
+        console.log("Current target exachange rate: ", newRate)
+        updateRate(newRate);
 
         // Update assets
-        const updatedAssets = updateAmounts(assets.map(asset => asset.amount), rate);
-        setAssets(prevAssets => prevAssets.map((asset, index) => ({
+        const convertAssets = updateAmounts(assets.map(asset => asset.amount), newRate);
+        setAssets(assets => assets.map((asset, index) => ({
             ...asset,
-            amount: parseFloat(updatedAssets[index]), // Ensure it's a number
+            convertedAmount: parseFloat(convertAssets[index]), // Ensure it's a number
         })));
 
         // Update liabilities
-        const updatedLiabilities = updateAmounts(liabilities.map(liability => liability.amount), rate);
+        const updatedLiabilities = updateAmounts(liabilities.map(liability => liability.amount), newRate);
         setLiabilities(prevLiabilities => prevLiabilities.map((liability, index) => ({
             ...liability,
-            amount: parseFloat(updatedLiabilities[index]), // Ensure it's a number
+            convertedAmount: parseFloat(updatedLiabilities[index]), // Ensure it's a number
         })));
     } else {
         console.log("Exchange rates not available for target currency");
@@ -86,7 +98,7 @@ function App() {
 
   // assets management
   const addAsset = () => {
-    setAssets([...assets, {label: '', amount: 0}]);
+    setAssets([...assets, {label: '', amount: 0, convertedAmount: 0}]);
   };
 
   const handleAssetChange = (index, field, value) => {
@@ -97,6 +109,14 @@ function App() {
         if (value === "" || /^[0-9]*(\.[0-9]{0,2})?$/.test(value)) {
             const parsedValue = parseFloat(value);
             updatedAssets[index][field] = isNaN(parsedValue) ? 0 : parseFloat(parsedValue.toFixed(2));
+            updatedAssets[index]['convertedAmount'] = isNaN(parsedValue) ? 0 : parseFloat((parsedValue * rate).toFixed(2));
+        }
+    } else if(field === 'convertedAmount') {
+        // Check for valid number input
+        if (value === "" || /^[0-9]*(\.[0-9]{0,2})?$/.test(value)) {
+            const parsedValue = parseFloat(value);
+            updatedAssets[index][field] = isNaN(parsedValue) ? 0 : parseFloat(parsedValue.toFixed(2));
+            updatedAssets[index]['amount'] = isNaN(parsedValue) ? 0 : parseFloat((parsedValue / rate).toFixed(2));
         }
     } else {
         updatedAssets[index][field] = value;
@@ -107,7 +127,7 @@ function App() {
 
   // liability management
   const addLiability = () => {
-    setLiabilities([...liabilities, {label: '', amount: 0}]);
+    setLiabilities([...liabilities, {label: '', amount: 0, convertedAmount: 0}]);
   };
 
   const handleLiabilityChange = (index, field, value) => {
@@ -118,7 +138,15 @@ function App() {
         if (value === "" || /^[0-9]*(\.[0-9]{0,2})?$/.test(value)) {
             const parsedValue = parseFloat(value);
             updatedLiabilities[index][field] = isNaN(parsedValue) ? 0 : parseFloat(parsedValue.toFixed(2));
+            updatedLiabilities[index]['convertedAmount'] = isNaN(parsedValue) ? 0 : parseFloat((parsedValue * rate).toFixed(2));
         }
+    } else if(field === 'convertedAmount') {
+        // Check for valid number input
+        if (value === "" || /^[0-9]*(\.[0-9]{0,2})?$/.test(value)) {
+          const parsedValue = parseFloat(value);
+          updatedLiabilities[index][field] = isNaN(parsedValue) ? 0 : parseFloat(parsedValue.toFixed(2));
+          updatedLiabilities[index]['amount'] = isNaN(parsedValue) ? 0 : parseFloat((parsedValue / rate).toFixed(2));
+      }
     } else {
         updatedLiabilities[index][field] = value;
     }
@@ -133,9 +161,10 @@ function App() {
     EUR: '€',
     TRY: '₺',
   };
-  const currencySymbol = currencySymbolOptions[selectedCurrency];
+  const homeSymbol = currencySymbolOptions[homeCurrency];
+  const targetSymbol = currencySymbolOptions[selectedCurrency];
 
-  // calculate the sum
+  // calculate the sum in home currency
   const sumAssets = assets.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
   const sumLiabilities = liabilities.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
 
@@ -144,6 +173,16 @@ function App() {
   console.log("Assets are: ", sumAssets);
   console.log("Liabilities are: ", sumLiabilities);
   console.log("Net worth is: ", netWorth);
+
+    // calculate the sum in target currency
+    const sumTargetAssets = assets.reduce((acc, curr) => acc + parseFloat(curr.convertedAmount || 0), 0);
+    const sumTargetLiabilities = liabilities.reduce((acc, curr) => acc + parseFloat(curr.convertedAmount || 0), 0);
+  
+    const targetNetWorth = (isNaN(sumTargetAssets) ? 0 : sumTargetAssets) - (isNaN(sumTargetLiabilities) ? 0 : sumTargetLiabilities);
+  
+    console.log("Converted assets are: ", sumTargetAssets);
+    console.log("Converted liabilities are: ", sumTargetLiabilities);
+    console.log("Converted net worth is: ", targetNetWorth);
 
   return (
     <div>
@@ -175,7 +214,8 @@ function App() {
                   <thead>
                     <tr>
                       <th>{strings.assetTitle}</th>
-                      <th>{strings.amountTitle}</th>
+                      <th>{strings.amountTitle} ({homeCurrency})</th>
+                      <th>{strings.convertedAmountTitle} ({selectedCurrency})</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -184,7 +224,7 @@ function App() {
                         <td>
                           <input
                             type="text"
-                            placeholder="Asset"
+                            placeholder={strings.assetPlaceHolder}
                             value={asset.label}
                             onChange={(e) => handleAssetChange(index, 'label', e.target.value)}
                           />
@@ -198,11 +238,30 @@ function App() {
                             onChange={(e) => handleAssetChange(index, 'amount', e.target.value)}
                           />
                         </td>
+                        <td>
+                        <input
+                            type="number"
+                            placeholder={(asset.convertedAmount || '0.00')}
+                            step="0.01"
+                            value={(asset.convertedAmount || '')}
+                            onChange={(e) => handleAssetChange(index, 'convertedAmount', e.target.value)}
+                          />
+                        </td>
                       </tr>
                     ))}
+                    <tr>
+                      <td>
+                        <h4>{strings.assetsSum}</h4>
+                      </td>
+                      <td>
+                        <h4>{homeSymbol}{sumAssets.toFixed(2)}</h4>
+                      </td>
+                      <td>
+                        <h4>{targetSymbol}{sumTargetAssets.toFixed(2)}</h4>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
-                <h4>{strings.assetsSum}{currencySymbol}{sumAssets.toFixed(2)}</h4>
                 <button type = "button" onClick={addAsset}>{strings.addAssetButton}</button>
               </form>
             </td>
@@ -216,6 +275,7 @@ function App() {
                     <tr>
                       <th>{strings.liabilityTitle}</th>
                       <th>{strings.amountTitle}</th>
+                      <th>{strings.convertedAmountTitle} ({selectedCurrency})</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -224,7 +284,7 @@ function App() {
                         <td>
                           <input
                             type="text"
-                            placeholder="Liability"
+                            placeholder={strings.liabilityPlaceHolder}
                             value={liability.label}
                             onChange={(e) => handleLiabilityChange(index, 'label', e.target.value)}
                           />
@@ -238,11 +298,30 @@ function App() {
                             onChange={(e) => handleLiabilityChange(index, 'amount', e.target.value)}
                           />
                         </td>
+                        <td>
+                        <input
+                            type="number"
+                            placeholder={(liability.convertedAmount || '0.00')}
+                            step="0.01"
+                            value={(liability.convertedAmount || '')}
+                            onChange={(e) => handleLiabilityChange(index, 'convertedAmount', e.target.value)}
+                          />
+                        </td>
                       </tr>
                     ))}
+                    <tr>
+                      <td>
+                        <h4>{strings.liabilitiesSum}</h4>
+                      </td>
+                      <td>
+                        <h4>{homeSymbol}{sumLiabilities.toFixed(2)}</h4>
+                      </td>
+                      <td>
+                        <h4>{targetSymbol}{sumTargetLiabilities.toFixed(2)}</h4>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
-                <h4>{strings.liabilitiesSum}-{currencySymbol}{sumLiabilities.toFixed(2)}</h4>
                 <button type = "button" onClick={addLiability}>{strings.addLiabilityButton}</button>
               </form>
             </td>
@@ -256,7 +335,9 @@ function App() {
       {/* Display the sum */}
       <div>
         <h2>{strings.netWorth}
-          <span className={netWorth >= 0 ? 'positive' : 'negative'}>{currencySymbol}{netWorth.toFixed(2)}</span></h2>
+          <span className={netWorth >= 0 ? 'positive' : 'negative'}>{homeSymbol}{netWorth.toFixed(2)}</span></h2>
+          <h2>{strings.convertedNetWorth}
+          <span className={netWorth >= 0 ? 'positive' : 'negative'}>{targetSymbol}{targetNetWorth.toFixed(2)}</span></h2>
       </div>
     </div>
   );
