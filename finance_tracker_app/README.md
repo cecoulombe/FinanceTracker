@@ -22,6 +22,5 @@ The most up-to-date version of the Finance Tracker website is available [here](h
 ## Version History
 
 - **v1.0**: Initial launch of the website with basic features written in Javascript and HTML.
-  - [Link to the Webpage (OLD)](https://cecoulombe.github.io/FinanceTracker/tracker_HTML)
 - **v1.1**: Website redesigned and implemented using React. New version control through a different repository and changed to host with GitHub Pages. Reimplemented the currency conversion so that the displayed values do not depend on the previous currency.
   - [Link to the Webpage](https://cecoulombe.github.io/FinanceTracker/)
